@@ -1,0 +1,95 @@
+class Libro:
+    def __init__(self, titulo, autor, isbn):
+        self.__titulo = titulo
+        self.__autor = autor
+        self.__isbn = isbn
+        self.__estadoDisponible = True
+
+    def prestar(self):
+        if self.__estadoDisponible:
+            self.__estadoDisponible = False
+            return True
+        else:
+            return False
+
+    def devolver(self):
+        if not self.__estadoDisponible:
+            self.__estadoDisponible = True
+        else:
+            raise Exception("El libro ya estaba disponible.")
+
+    def get_isbn(self):
+        return self.__isbn
+
+    def get_estado(self):
+        return self.__estadoDisponible
+
+    def get_autor(self):
+        return self.__autor
+
+    def get_titulo(self):
+        return self.__titulo
+
+    def __str__(self):
+        estado = "Disponible" if self.__estadoDisponible else "Prestado"
+        return f"Título: {self.__titulo} - Autor: {self.__autor} - ISBN: {self.__isbn} - Estado: {estado}"
+
+
+class Miembro:
+    def __init__(self, nombre, id):
+        self.__nombre = nombre
+        self.__id = id
+        self.__libros_prestados = []
+
+    def get_id(self):
+        return self.__id
+
+    def get_nombre(self):
+        return self.__nombre
+
+    def pedir_prestado(self, libro):
+        if libro.prestar():
+            self.__libros_prestados.append(libro)
+        else:
+            raise Exception("El libro no está disponible para préstamo.")
+
+    def devolver_libro(self, libro):
+        if libro in self.__libros_prestados:
+            libro.devolver()
+            self.__libros_prestados.remove(libro)
+        else:
+            raise Exception("Este miembro no tiene prestado ese libro.")
+
+    def __str__(self):
+        libros = ", ".join([l.get_titulo() for l in self.__libros_prestados]) or "Ninguno"
+        return f"ID: {self.__id} - Nombre: {self.__nombre} - Libros prestados: {libros}"
+
+
+class Biblioteca:
+    def __init__(self):
+        self.miembros = []
+        self.libros = []
+
+    def agregarLibro(self, libro):
+        self.libros.append(libro)
+
+    def agregarMiembro(self, miembro):
+        self.miembros.append(miembro)
+
+    def eliminarLibro(self, libro):
+        if libro in self.libros:
+            self.libros.remove(libro)
+        else:
+            raise Exception("El libro no existe en la biblioteca.")
+
+    def eliminarMiembro(self, miembro):
+        if miembro in self.miembros:
+            self.miembros.remove(miembro)
+        else:
+            raise Exception("El miembro no existe en la biblioteca.")
+
+    def consultarLibros(self):
+        return [str(libro) for libro in self.libros]
+
+    def consultarMiembros(self):
+        return [str(m) for m in self.miembros]
