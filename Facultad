@@ -1,0 +1,230 @@
+# ================= CLASES =================
+
+class Curso:
+    def __init__(self, nombre, codigo, profesor, capacidad):
+        self.__nombre = nombre
+        self.__codigo = codigo
+        self.__profesor = profesor
+        self.__capacidad = int(capacidad)
+        self.__estudiantesInscriptos = []
+
+    def getCodigo(self):
+        return self.__codigo
+
+    def agregarEstudiante(self, estudiante):
+        if not self.cuposDisponibles():
+            raise Exception("No hay cupos disponibles en este curso.")
+        if estudiante in self.__estudiantesInscriptos:
+            raise Exception("El estudiante ya está inscripto en este curso.")
+        self.__estudiantesInscriptos.append(estudiante)
+
+    def cuposDisponibles(self):
+        return self.__capacidad > len(self.__estudiantesInscriptos)
+
+    def bajaEstudiante(self, estudiante):
+        if estudiante not in self.__estudiantesInscriptos:
+            raise Exception("El estudiante no está inscripto en este curso.")
+        self.__estudiantesInscriptos.remove(estudiante)
+
+    def __str__(self):
+        return f"Codigo: {self.__codigo} - Nombre: {self.__nombre} - Profesor: {self.__profesor} - Inscriptos: {len(self.__estudiantesInscriptos)} - Cupos disponibles: {self.__capacidad - len(self.__estudiantesInscriptos)}"
+
+    def listadoEstudiantes(self):
+        if not self.__estudiantesInscriptos:
+            return "No hay estudiantes inscriptos en este curso."
+        return "\n".join([str(estudiante) for estudiante in self.__estudiantesInscriptos])
+
+
+class Estudiante:
+    def __init__(self, nombre, apellido, matricula, carrera):
+        self.__nombre = nombre
+        self.__apellido = apellido
+        self.__matricula = matricula
+        self.__carrera = carrera
+        self.__cursos = []
+
+    def getMatricula(self):
+        return self.__matricula
+
+    def inscribeCurso(self, curso):
+        if curso in self.__cursos:
+            raise Exception("El estudiante ya está inscripto en este curso.")
+        self.__cursos.append(curso)
+
+    def bajaCurso(self, curso):
+        if curso not in self.__cursos:
+            raise Exception("El estudiante no está inscripto en este curso.")
+        self.__cursos.remove(curso)
+
+    def __str__(self):
+        retorno = f"{self.__matricula} - Nombre: {self.__apellido}, {self.__nombre} - Carrera: {self.__carrera}\n"
+        if self.__cursos:
+            retorno += "Cursos inscriptos:\n" + "\n".join([f"  {curso.getCodigo()} - {curso._Curso__nombre}" for curso in self.__cursos])
+        else:
+            retorno += "No está inscripto en ningún curso."
+        return retorno
+
+
+class Facultad:
+    def __init__(self):
+        self.__estudiantes = []
+        self.__cursos = []
+
+    def altaEstudiante(self, nombre, apellido, matricula, carrera):
+        if any(e.getMatricula() == matricula for e in self.__estudiantes):
+            raise Exception("Ya existe un estudiante con esa matrícula.")
+        estudiante = Estudiante(nombre, apellido, matricula, carrera)
+        self.__estudiantes.append(estudiante)
+
+    def altaCurso(self, nombre, codigo, profesor, capacidad):
+        if any(c.getCodigo() == codigo for c in self.__cursos):
+            raise Exception("Ya existe un curso con ese código.")
+        curso = Curso(nombre, codigo, profesor, capacidad)
+        self.__cursos.append(curso)
+
+    def bajaEstudiante(self, matricula):
+        ok, estudiante = self.getEstudiante(matricula)
+        if not ok:
+            raise Exception("No se encontró el estudiante.")
+        self.__estudiantes.remove(estudiante)
+
+    def bajaCurso(self, codigo):
+        curso = self.getCurso(codigo)
+        if not curso:
+            raise Exception("No se encontró el curso.")
+        self.__cursos.remove(curso)
+
+    def getEstudiante(self, matricula):
+        for estudiante in self.__estudiantes:
+            if estudiante.getMatricula() == matricula:
+                return True, estudiante
+        return False, None
+
+    def getCurso(self, codigo):
+        for curso in self.__cursos:
+            if curso.getCodigo() == codigo:
+                return curso
+        return None
+
+    def inscribeEstudianteCurso(self, matricula, codigo):
+        ok, estudiante = self.getEstudiante(matricula)
+        if not ok:
+            raise Exception("El estudiante no existe.")
+        curso = self.getCurso(codigo)
+        if not curso:
+            raise Exception("El curso no existe.")
+        curso.agregarEstudiante(estudiante)
+        estudiante.inscribeCurso(curso)
+
+    def bajaEstudianteDeCurso(self, matricula, codigo):
+        ok, estudiante = self.getEstudiante(matricula)
+        if not ok:
+            raise Exception("El estudiante no existe.")
+        curso = self.getCurso(codigo)
+        if not curso:
+            raise Exception("El curso no existe.")
+        estudiante.bajaCurso(curso)
+        curso.bajaEstudiante(estudiante)
+
+    def listadoEstudiante(self):
+        for estudiante in self.__estudiantes:
+            print(estudiante)
+
+    def listadoCursos(self):
+        for curso in self.__cursos:
+            print(curso)
+
+
+# ================= MENU =================
+
+def menu():
+    facultad = Facultad()
+    opcion = 0
+
+    while opcion != 10:
+        print("\n===== MENU FACULTAD =====")
+        print("1. Crear un estudiante")
+        print("2. Dar de baja un estudiante del sistema")
+        print("3. Inscribir un estudiante a un curso")
+        print("4. Dar de baja un estudiante de un curso")
+        print("5. Consultar estudiantes (con cursos inscriptos)")
+        print("6. Consultar estudiantes dentro de un curso")
+        print("7. Agregar un curso nuevo")
+        print("8. Eliminar un curso")
+        print("9. Consultar cursos")
+        print("10. Salir del sistema")
+
+        try:
+            opcion = int(input("Ingrese la opción que desea ejecutar: "))
+        except ValueError:
+            print("Debe ingresar un número del 1 al 10.")
+            continue
+
+        try:
+            if opcion == 1:
+                nombre = input("Ingrese nombre del estudiante: ")
+                apellido = input("Ingrese apellido: ")
+                matricula = input("Ingrese número de matrícula: ")
+                carrera = input("Ingrese carrera: ")
+                facultad.altaEstudiante(nombre, apellido, matricula, carrera)
+                print("Estudiante agregado con éxito.")
+
+            elif opcion == 2:
+                matricula = input("Ingrese matrícula del estudiante a eliminar: ")
+                facultad.bajaEstudiante(matricula)
+                print("Estudiante eliminado con éxito.")
+
+            elif opcion == 3:
+                matricula = input("Ingrese matrícula del estudiante: ")
+                codigo = input("Ingrese código del curso: ")
+                facultad.inscribeEstudianteCurso(matricula, codigo)
+                print("Estudiante inscripto al curso con éxito.")
+
+            elif opcion == 4:
+                matricula = input("Ingrese matrícula del estudiante: ")
+                codigo = input("Ingrese código del curso: ")
+                facultad.bajaEstudianteDeCurso(matricula, codigo)
+                print("Estudiante dado de baja del curso con éxito.")
+
+            elif opcion == 5:
+                print("\n-- Lista de Estudiantes --")
+                facultad.listadoEstudiante()
+
+            elif opcion == 6:
+                codigo = input("Ingrese código del curso: ")
+                curso = facultad.getCurso(codigo)
+                if not curso:
+                    print("Curso no encontrado.")
+                else:
+                    print(f"\n-- Estudiantes inscriptos en {curso._Curso__nombre} --")
+                    print(curso.listadoEstudiantes())
+
+            elif opcion == 7:
+                nombre = input("Ingrese nombre del curso: ")
+                codigo = input("Ingrese código del curso: ")
+                profesor = input("Ingrese nombre del profesor: ")
+                capacidad = input("Ingrese capacidad del curso: ")
+                facultad.altaCurso(nombre, codigo, profesor, capacidad)
+                print("Curso agregado con éxito.")
+
+            elif opcion == 8:
+                codigo = input("Ingrese código del curso a eliminar: ")
+                facultad.bajaCurso(codigo)
+                print("Curso eliminado con éxito.")
+
+            elif opcion == 9:
+                print("\n-- Lista de Cursos --")
+                facultad.listadoCursos()
+
+            elif opcion == 10:
+                print("Saliendo del sistema...")
+
+            else:
+                print("Opción no válida. Ingrese un número del 1 al 10.")
+
+        except Exception as e:
+            print("Error:", e)
+
+
+if __name__ == "__main__":
+    menu()
