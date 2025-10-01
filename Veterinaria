@@ -1,0 +1,558 @@
+# Ejercicio Integrador de Programación Orientada a Objetos (POO) en Python. VETERINARIA
+
+from datetime import datetime
+
+# ------------------- Clases Base -------------------
+class Persona:
+    def __init__(self, dni, nombre, direccion, telefono):
+        self.__dni = dni
+        self.__nombre = nombre
+        self.__direccion = direccion
+        self.__telefono = telefono
+
+    def __str__(self):
+        return f"{self.__nombre} - {self.__telefono}"
+
+    def getDni(self):
+        return self.__dni
+
+    def getNombre(self):
+        return self.__nombre
+
+    def setDireccion(self, direccion):
+        self.__direccion = direccion
+
+    def setTelefono(self, telefono):
+        self.__telefono = telefono
+
+class Cliente(Persona):
+    def __init__(self, dni, nombre, direccion, telefono):
+        super().__init__(dni, nombre, direccion, telefono)
+        self.__mascotas = []
+
+    def agregar_mascota(self, mascota):
+        self.__mascotas.append(mascota)
+
+class Veterinario(Persona):
+    def __init__(self, dni, nombre, direccion, telefono, matricula, especialidad, disponibilidad):
+        super().__init__(dni, nombre, direccion, telefono)
+        self.__matricula = matricula
+        self.__especialidad = especialidad
+        self.__disponibilidad = disponibilidad
+
+    def __str__(self):
+        return f"Veterinario: {self.getNombre()} - Matrícula: {self.__matricula}"
+
+    def getMatricula(self):
+        return self.__matricula
+
+    def getEspecialidad(self):
+        return self.__especialidad
+
+    def getDisponibilidad(self):
+        return self.__disponibilidad
+
+    def setMatricula(self, matricula):
+        self.__matricula = matricula
+
+    def setEspecialidad(self, especialidad):
+        self.__especialidad = especialidad
+
+    def setDisponibilidad(self, disponibilidad):
+        self.__disponibilidad = disponibilidad
+
+class Mascota:
+    def __init__(self, id, nombre, especie, raza, edad):
+        self.__id = id
+        self.__nombre = nombre
+        self.__especie = especie
+        self.__raza = raza
+        self.__edad = edad
+        self.__historia_clinica = []
+
+    def getNombre(self):
+        return self.__nombre
+
+    def getID(self):
+        return self.__id
+
+    def getEspecie(self):
+        return self.__especie
+
+    def getRaza(self):
+        return self.__raza
+
+    def getEdad(self):
+        return self.__edad
+
+    def setNombre(self, nombre):
+        self.__nombre = nombre
+
+    def setEspecie(self, especie):
+        self.__especie = especie
+
+    def setRaza(self, raza):
+        self.__raza = raza
+
+    def setEdad(self, edad):
+        self.__edad = edad
+
+    def agregar_historia(self, consulta):
+        self.__historia_clinica.append(consulta)
+
+    def getHistoriaClinica(self):
+        retorno = ""
+        for hc in self.__historia_clinica:
+            retorno += "\n" + hc
+        return retorno
+
+    def setHistoriaClinica(self, historia_clinica):
+        self.__historia_clinica = historia_clinica
+
+class Producto:
+    def __init__(self, nombre, precio, cantStock=0):
+        self.__nombre = nombre
+        self.__precio = precio
+        self.__cantStock = cantStock
+
+    def __str__(self):
+        return f"{self.__nombre} - ${self.__precio} - {self.__cantStock}"
+
+    # getters necesarios
+    def getNombre(self):
+        return self.__nombre
+
+    def getPrecio(self):
+        return self.__precio
+
+    def getStock(self):
+        return self.__cantStock
+
+class Turno:
+    def __init__(self, cliente, mascota, veterinario, fecha):
+        self.__cliente = cliente
+        self.__mascota = mascota
+        self.__veterinario = veterinario
+        self.__fecha = fecha
+
+    def __str__(self):
+        return f"Turno: {self.__fecha} - {self.__mascota.getNombre()} con {self.__veterinario.getNombre()}"
+
+class Ventas:
+    def __init__(self, cliente):
+        self.__cliente = cliente
+        self.__items = []
+        self.__fecha = datetime.now()
+
+class Usuario:
+    def __init__(self, usuario, password):
+        self.__usuario = usuario
+        self.__password = password
+
+class Administrador(Usuario):
+    def __init__(self, usuario, password):
+        super().__init__(usuario, password)
+
+class Recepcionista(Usuario):
+    def __init__(self, usuario, password):
+        super().__init__(usuario, password)
+
+# ------------------- Clase Principal -------------------
+class Veterinaria:
+    def __init__(self):
+        self.__cliente = []
+        self.__veterinario = []
+        self.__mascota = []
+        self.__productos = []
+        self.__turnos = []
+        self.__ventas = []
+
+    # Clientes
+    def agregar_cliente(self, cliente):
+        self.__cliente.append(cliente)
+
+    def bajaCliente(self, dni):
+        cliente = self.buscaCliente(dni)
+        if cliente:
+            self.__cliente.remove(cliente)
+
+    def modificarCliente(self, dni, direccion, telefono):
+        cliente = self.buscaCliente(dni)
+        if cliente:
+            cliente.setDireccion(direccion)
+            cliente.setTelefono(telefono)
+
+    def buscaCliente(self, dni):
+        for cliente in self.__cliente:
+            if cliente.getDni() == dni:
+                return cliente
+        raise  ValueError("Cliente no encontrado")
+
+    # Veterinarios
+    def agregar_veterinario(self, veterinario):
+        self.__veterinario.append(veterinario)
+
+    def bajaVeterinario(self, dni):
+        veterinario = self.buscaVeterinario(dni)
+        if veterinario:
+            self.__veterinario.remove(veterinario)
+
+    def modificarVeterinario(self, dni, direccion, telefono, matricula, especialidad, disponibilidad):
+        veterinario = self.buscaVeterinario(dni)
+        if veterinario:
+            veterinario.setDireccion(direccion)
+            veterinario.setTelefono(telefono)
+            veterinario.setMatricula(matricula)
+            veterinario.setEspecialidad(especialidad)
+            veterinario.setDisponibilidad(disponibilidad)
+
+    def buscaVeterinario(self, dni):
+        for veterinario in self.__veterinario:
+            if veterinario.getDni() == dni:
+                return veterinario
+        raise ValueError("Veterinario no encontrado")
+
+    # Mascotas
+    def agregar_mascota(self, mascota):
+        self.__mascota.append(mascota)
+
+    def modificarMascota(self, ID, nombre, especie, raza, edad):
+        mascota = self.buscaMascota(ID)
+        if mascota:
+            mascota.setNombre(nombre)
+            mascota.setEspecie(especie)
+            mascota.setRaza(raza)
+            mascota.setEdad(edad)
+
+    def buscaMascota(self, id):
+        for mascota in self.__mascota:
+            if mascota.getID() == id:
+                return mascota
+        raise ValueError("Mascota no encontrada")
+
+    def bajaMascota(self, id):
+        mascota = self.buscaMascota(id)
+        if mascota:
+            self.__mascota.remove(mascota)
+
+    # Turnos
+    def agendarTurno(self, turno):
+        self.__turnos.append(turno)
+
+    def buscaTurno(self, fecha, dni_veterinario, id_mascota):
+        for turno in self.__turnos:
+            if (turno._Turno__fecha == fecha and
+                turno._Turno__veterinario.getDni() == dni_veterinario and
+                turno._Turno__mascota.getID() == id_mascota):
+                return turno
+        raise ValueError("Turno no encontrado")
+
+    def cancelarTurno(self, turno):
+        self.__turnos.remove(turno)
+
+    def listarTurnos(self):
+        return self.__turnos
+
+    def listarTurnosPorVeterinario(self, dni):
+        return [turno for turno in self.__turnos if turno._Turno__veterinario.getDni() == dni]
+
+    def listarTurnosPorMascota(self, ID):
+        return [turno for turno in self.__turnos if turno._Turno__mascota.getID() == ID]
+
+    # Productos
+    def agregar_producto(self, producto):
+        self.__productos.append(producto)
+
+    def modificarProducto(self, nombre, precio, cantStock):
+        producto = self.buscaProducto(nombre)
+        if producto:
+            producto._Producto__precio = precio
+            producto._Producto__cantStock = cantStock
+
+    def buscaProducto(self, nombre):
+        for producto in self.__productos:
+            if producto.getNombre() == nombre:
+                return producto
+        raise ValueError("Producto no encontrado")
+
+    def bajaProducto(self, nombre):
+        producto = self.buscaProducto(nombre)
+        if producto:
+            self.__productos.remove(producto)
+
+    def listarProductos(self):
+        return self.__productos
+
+    # Ventas
+    def registrarVenta(self, venta):
+        self.__ventas.append(venta)
+
+    def listarVentas(self):
+        return self.__ventas
+
+# ------------------- MENU -------------------
+veterinaria = Veterinaria()
+opcion = 0
+
+while opcion != 100:
+    print("1. Registrar Cliente.")
+    print("2. Modificar Cliente.")
+    print("3. Eliminar Cliente.")
+    print("----------------")
+    print("4. Registrar Veterinario.")
+    print("5. Modificar Veterinario.")
+    print("6. Eliminar Veterinario.")
+    print("----------------")
+    print("7. Registrar Mascota.")
+    print("8. Modificar Mascota.")
+    print("9. Eliminar Mascota.")
+    print("----------------")
+    print("10. Agendar Turno.")
+    print("11. Cancelar Turno.")
+    print("----------------")
+    print("12. Registrar Producto.")
+    print("13. Modificar Producto.")
+    print("14. Eliminar Producto.")
+    print("----------------")
+    print("15. Registrar Venta.")
+    print("----------------")
+    print("16. Listar turnos por veterinarios.")
+    print("17. Listar turnos por mascota.")
+    print("18. Listar de ventas realizadas.")
+    print("----------------")
+    print("100. Salir.")
+
+    opcion = int(input("Ingrese la opcion que desea ejecutar: "))
+
+    if opcion == 1:
+        dni = input("Ingrese DNI: ")
+        nombre = input("Ingrese nombre cliente: ")
+        direccion = input("Ingrese su direccion: ")
+        telefono = input("Ingrese su telefono: ")
+        cliente1 = Cliente(dni, nombre, direccion, telefono)
+        veterinaria.agregar_cliente(cliente1)
+
+    elif opcion == 2:
+        dni = input("Ingrese DNI: ")
+        direccion = input("Ingrese su direccion: ")
+        telefono = input("Ingrese su telefono: ")
+        try:
+            veterinaria.modificarCliente(dni, direccion, telefono)
+            print("Cliente modificado exitosamente.")
+        except ValueError as e:
+            print(e)
+
+    elif opcion == 3:
+        dni = input("Ingrese DNI: ")
+        try:
+            veterinaria.bajaCliente(dni)
+            print("Cliente eliminado exitosamente.")
+        except ValueError as e:
+            print(e)
+
+    elif opcion == 4:
+        dni = input("Ingrese DNI: ")
+        nombre = input("Ingrese nombre del veterinario: ")
+        direccion = input("Ingrese su direccion: ")
+        telefono = input("Ingrese su telefono: ")
+        matricula = input("Ingrese su matricula: ")
+        especialidad = input("Ingrese su especialidad: ")
+        disponibilidad = input("Ingrese su disponibilidad: ")
+        veterinario1 = Veterinario(dni, nombre, direccion, telefono, matricula, especialidad, disponibilidad)
+        veterinaria.agregar_veterinario(veterinario1)
+
+    elif opcion == 5:
+        dni = input("Ingrese DNI: ")
+        direccion = input("Ingrese su direccion: ")
+        telefono = input("Ingrese su telefono: ")
+        matricula = input("Ingrese su matricula: ")
+        especialidad = input("Ingrese su especialidad: ")
+        disponibilidad = input("Ingrese su disponibilidad: ")
+        try:
+            veterinaria.modificarVeterinario(dni, direccion, telefono, matricula, especialidad, disponibilidad)
+            print("Veterinario modificado exitosamente.")
+        except ValueError as e:
+            print(e)
+
+    elif opcion == 6:
+        dni = input("Ingrese DNI: ")
+        try:
+            veterinaria.bajaVeterinario(dni)
+            print("Veterinario eliminado exitosamente.")
+        except ValueError as e:
+            print(e)
+
+    elif opcion == 7:
+        nombre = input("Ingrese nombre de la mascota: ")
+        especie = input("Ingrese especie de la mascota: ")
+        raza = input("Ingrese raza de la mascota: ")
+        edad = int(input("Ingrese edad de la mascota: "))
+        id = input("Ingrese ID de la mascota: ")
+        mascota1 = Mascota(id, nombre, especie, raza, edad)
+        veterinaria.agregar_mascota(mascota1)
+
+    elif opcion == 8:
+        id = input("Ingrese ID de la mascota a modificar: ")
+        nombre = input("Ingrese nuevo nombre de la mascota: ")
+        especie = input("Ingrese nueva especie de la mascota: ")
+        raza = input("Ingrese nueva raza de la mascota: ")
+        edad = int(input("Ingrese nueva edad de la mascota: "))
+        try:
+            veterinaria.modificarMascota(id, nombre, especie, raza, edad)
+            print("Mascota modificada exitosamente.")
+        except ValueError as e:
+            print(e)
+
+    elif opcion == 9:
+        id = input("Ingrese ID de la mascota a eliminar: ")
+        try:
+            veterinaria.bajaMascota(id)
+            print("Mascota eliminada exitosamente.")
+        except ValueError as e:
+            print(e)
+
+    elif opcion == 10:
+        dni_cliente = input("Ingrese DNI del cliente: ")
+        try:
+            cliente = veterinaria.buscaCliente(dni_cliente)
+        except ValueError as e:
+            print(e)
+            continue
+
+        id_mascota = input("Ingrese ID de la mascota: ")
+        try:
+            mascota = veterinaria.buscaMascota(id_mascota)
+        except ValueError as e:
+            print(e)
+            continue
+
+        dni_veterinario = input("Ingrese DNI del veterinario: ")
+        try:
+            veterinario = veterinaria.buscaVeterinario(dni_veterinario)
+        except ValueError as e:
+            print(e)
+            continue
+
+        fecha_str = input("Ingrese fecha y hora del turno (YYYY-MM-DD HH:MM): ")
+        try:
+            fecha = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M")
+        except ValueError:
+            print("Formato de fecha incorrecto.")
+            continue
+
+        turno1 = Turno(cliente, mascota, veterinario, fecha)
+        veterinaria.agendarTurno(turno1)
+        print("Turno agendado exitosamente.")
+
+    elif opcion == 11:
+        dni_veterinario = input("Ingrese DNI del veterinario: ")
+        id_mascota = input("Ingrese ID de la mascota: ")
+        fecha_str = input("Ingrese fecha y hora del turno a cancelar (YYYY-MM-DD HH:MM): ")
+        try:
+            fecha = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M")
+        except ValueError:
+            print("Formato de fecha incorrecto.")
+            continue
+
+        turno_a_cancelar = None
+        for turno in veterinaria.listarTurnos():
+            if (turno._Turno__veterinario.getDni() == dni_veterinario and
+                turno._Turno__mascota.getID() == id_mascota and
+                turno._Turno__fecha == fecha):
+                turno_a_cancelar = turno
+                break
+
+        if turno_a_cancelar:
+            veterinaria.cancelarTurno(turno_a_cancelar)
+            print("Turno cancelado exitosamente.")
+        else:
+            print("No se encontró el turno especificado.")
+
+    elif opcion == 12:
+        nombre = input("Ingrese nombre del producto: ")
+        precio = float(input("Ingrese precio del producto: "))
+        cantStock = int(input("Ingrese cantidad en stock: "))
+        producto1 = Producto(nombre, precio, cantStock)
+        veterinaria.agregar_producto(producto1)
+
+    elif opcion == 13:
+        print("Listado de productos:")
+        for producto in veterinaria.listarProductos():
+            print(f"Nombre: {producto.getNombre()}, Precio: {producto.getPrecio()}, Stock: {producto.getStock()}")
+        nombre = input("Ingrese nombre del producto a modificar: ")
+        precio = float(input("Ingrese nuevo precio del producto: "))
+        cantStock = int(input("Ingrese nueva cantidad en stock: "))
+        try:
+            veterinaria.modificarProducto(nombre, precio, cantStock)
+            print("Producto modificado exitosamente.")
+        except ValueError as e:
+            print(e)
+
+    elif opcion == 14:
+        print("Listado de productos:")
+        for producto in veterinaria.listarProductos():
+            print(f"Nombre: {producto.getNombre()}, Precio: {producto.getPrecio()}, Stock: {producto.getStock()}")
+        nombre = input("Ingrese nombre del producto a eliminar: ")
+        try:
+            veterinaria.bajaProducto(nombre)
+            print("Producto eliminado exitosamente.")
+        except ValueError as e:
+            print(e)
+
+    elif opcion == 15:
+        dni_cliente = input("Ingrese DNI del cliente: ")
+        try:
+            cliente = veterinaria.buscaCliente(dni_cliente)
+        except ValueError as e:
+            print(e)
+            continue
+
+        venta = Ventas(cliente)
+        while True:
+            nombre_producto = input("Ingrese nombre del producto a agregar a la venta (o 'fin' para terminar): ")
+            if nombre_producto.lower() == 'fin':
+                break
+            try:
+                producto = veterinaria.buscaProducto(nombre_producto)
+            except ValueError:
+                print("Producto no encontrado.")
+                continue
+            cantidad = int(input(f"Ingrese cantidad de {producto.getNombre()} a vender: "))
+            if cantidad > producto.getStock():
+                print("No hay suficiente stock.")
+                continue
+            venta._Ventas__items.append((producto, cantidad))
+            producto._Producto__cantStock -= cantidad
+        veterinaria.registrarVenta(venta)
+        print("Venta registrada exitosamente.")
+
+    elif opcion == 16:
+        dni_veterinario = input("Ingrese DNI del veterinario: ")
+        turnos = veterinaria.listarTurnosPorVeterinario(dni_veterinario)
+        if turnos:
+            for turno in turnos:
+                print(turno)
+        else:
+            print("No se encontraron turnos para este veterinario.")
+
+    elif opcion == 17:
+        id_mascota = input("Ingrese ID de la mascota: ")
+        turnos = veterinaria.listarTurnosPorMascota(id_mascota)
+        if turnos:
+            for turno in turnos:
+                print(turno)
+        else:
+            print("No se encontraron turnos para esta mascota.")
+
+    elif opcion == 18:
+        ventas = veterinaria.listarVentas()
+        if ventas:
+            for venta in ventas:
+                print(f"Venta realizada el {venta._Ventas__fecha} para el cliente {venta._Ventas__cliente.getNombre()}")
+                for item, cantidad in venta._Ventas__items:
+                    print(f" - {item.getNombre()} x{cantidad} - ${item.getPrecio() * cantidad}")
+        else:
+            print("No se encontraron ventas registradas.")
+
+    elif opcion == 100:
+        break
